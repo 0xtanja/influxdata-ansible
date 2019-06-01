@@ -10,8 +10,6 @@
 
 - assert:
     that: distro is defined and distro != ''
-    fail_msg: Unable to determine distro name
-    success_msg: "Got {{ distro }}"
 
 - name: Install key
   become: yes
