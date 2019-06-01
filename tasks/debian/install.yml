@@ -1,0 +1,27 @@
+---
+- name: Read release data
+  shell: |
+    grep '^VERSION=' /etc/os-release | grep -oh '(.*)' | tr -d '()'
+  register: release_data
+
+- name: Register distro name
+  set_fact:
+    distro: "{{ release_data.stdout_lines[0] }}"
+
+- assert:
+    that: distro is defined and distro != ''
+    fail_msg: Unable to determine distro name
+    success_msg: "Got {{ distro }}"
+
+- name: Install key
+  become: yes
+  apt_key:
+    url: https://repos.influxdata.com/influxdb.key
+
+- name: Install repository
+  become: yes
+  apt_repository:
+      repo: "deb https://repos.influxdata.com/debian {{ distro }} stable"
+      state: present
+      codename: "{{ distro }}"
+      validate_certs: yes
